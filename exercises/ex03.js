@@ -4,12 +4,28 @@
 // Remove people from the queue if their total late fee is $0 (all books were returned on time).
 // Make sure to implement FIFO (First-In, First-Out)
 
-const Queue = require('../lib/Queue')
+const Queue = require('../lib/Queue');
 
 function processReturns(queue) {
-  // your code here
+  const tempQueue = new Queue();
+
+  while (!queue.isEmpty()) {
+    const person = queue.dequeue();
+
+    const totalLateFee = person.books.reduce((sum, book) => sum + (book.daysLate * 2), 0);
+
+    if (totalLateFee > 0) {
+      tempQueue.enqueue(person);
+    }
+  }
+
+  // Restore filtered results into original queue
+  while (!tempQueue.isEmpty()) {
+    queue.enqueue(tempQueue.dequeue());
+  }
 }
 
+// Test case
 const returns = new Queue();
 returns.enqueue({ name: "Alice", books: [{ title: "Book 1", daysLate: 0 }, { title: "Book 2", daysLate: 5 }] });
 returns.enqueue({ name: "Bob", books: [{ title: "Book 3", daysLate: 0 }] });
@@ -17,6 +33,3 @@ returns.enqueue({ name: "Charlie", books: [{ title: "Book 4", daysLate: 2 }, { t
 
 processReturns(returns);
 console.log(returns.printQueue());
-// Expected output:
-// { name: "Alice", books: [{ title: "Book 1", daysLate: 0 }, { title: "Book 2", daysLate: 5 }] }
-// { name: "Charlie", books: [{ title: "Book 4", daysLate: 2 }, { title: "Book 5", daysLate: 4 }] }
